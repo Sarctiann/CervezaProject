@@ -1,0 +1,15 @@
+# Ignorar:
+
+migrations
+
+*.sqlite3
+
+env
+
+__pycache__
+
+.vscode
+
+ws.code-workspace
+
+_graphs
