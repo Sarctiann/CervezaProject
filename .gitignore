@@ -1,6 +1,14 @@
 # Ignorar:
 
+TODO
+
+NOTAS
+
 migrations
+
+static
+
+media
 
 *.sqlite3
 
@@ -13,3 +21,5 @@ __pycache__
 ws.code-workspace
 
 _graphs
+
+graficar.py

@@ -14,6 +14,9 @@ class Localidad(models.Model):
     def __str__(self):
         return self.description
 
+    class Meta:
+        verbose_name_plural = 'Localidades'
+
 class Empresa(models.Model):
     id_localidad = models.ForeignKey(Localidad, on_delete=models.CASCADE)
     business_name = models.CharField(max_length=50)
@@ -41,3 +44,6 @@ class Productor(models.Model):
     cellphone = models.IntegerField()
     date = models.DateField(auto_now=True)
     active = models.BooleanField(default=True)
+
+    class Meta:
+        verbose_name_plural = 'Productores'
