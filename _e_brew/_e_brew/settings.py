@@ -43,12 +43,12 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
 
-    'apiRest.apps.ApirestConfig',
-    'cervezas.apps.CervezasConfig',
-    'clientes.apps.ClientesConfig',
-    'empresas.apps.EmpresasConfig',
-    'maquinaria.apps.MaquinariaConfig',
-    'tarjetas.apps.TarjetasConfig',
+    'apiRest',
+    'clientes',
+    'dispositivos',
+    'empresas',
+    'miscelaneos',
+    'productores',
 ]
 
 MIDDLEWARE = [

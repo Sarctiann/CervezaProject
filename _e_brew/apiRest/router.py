@@ -5,66 +5,66 @@ from .views import (
     UserViewSet,
     GroupViewSet,
     
-    MarcaViewSet,
-    ListaEstilosViewSet,
-    EstiloViewSet,
-    CervezaAsignadaViewSet,
-
     ClienteViewSet,
+    TarjetaViewSet,
+
+    PilonViewSet,
+    CanillaViewSet,
+    CanillaProductoViewSet,
+
+    EmpresaViewSet,
+    ProductoViewSet,
+    PrecioViewSet,
 
     ProvinciaViewSet,
     LocalidadViewSet,
-    EmpresaViewSet,
+    RegistroVentaViewSet,
+    CompraViewSet,
+
     ProductorViewSet,
-
-    MaquinaViewSet,
-    CanillaViewSet,
-
-    TarjetaViewSet,
-    RegistroVentasViewSet
+    MarcaViewSet,
+    TipoViewSet,
+    EstiloViewSet,
 )
-
+from miscelaneos import urls
 
 # https://stackoverflow.com/questions/17496249/in-django-restframework-how-to-change-the-api-root-documentation
 
-class ApiAuthView(APIRootView):
-    """Esta es la sección de Usuarios y Permisos"""
 class ApiInicioView(APIRootView):
     """Esta es la raiz de la api de nuestro sistema de cervecería electronica"""
-
-class AuthRouter(DefaultRouter):
-    APIRootView = ApiAuthView
 
 class RootRouter(DefaultRouter):
     APIRootView = ApiInicioView
 
-router_auth = AuthRouter()
 
 router = RootRouter()
 
 # Módulo Autenticación
-router_auth.register('usuario', UserViewSet, basename='usuario')
-router_auth.register('grupo', GroupViewSet, basename='grupo')
-# Módulo cervezas
-router.register('marca', MarcaViewSet, basename='Marca')
-router.register('lista-estilos', ListaEstilosViewSet, basename='ListaEstilos')
-router.register('estilo', EstiloViewSet, basename='Estilos')
-router.register('cerveza-asignada', CervezaAsignadaViewSet, basename='CervezaAsignada')
+router.register('usuario', UserViewSet, basename='usuario')
+router.register('grupo', GroupViewSet, basename='grupo')
 # Módulo clientes
 router.register('cliente', ClienteViewSet, basename='Cliente')
+router.register('tarjeta', TarjetaViewSet, basename='Tarjeta')
+# Módulo dispositivos
+router.register('pilon', PilonViewSet, basename='Pilon')
+router.register('canilla', CanillaViewSet, basename='Canilla')
+router.register('canilla-producto', CanillaProductoViewSet, basename='CanillaProducto')
 # Módulo empresas
+router.register('empresa', EmpresaViewSet, basename='Empresa')
+router.register('producto', ProductoViewSet, basename='Producto')
+router.register('precio', PrecioViewSet, basename='Precio')
+# Módulo miscelaneos
 router.register('provincia', ProvinciaViewSet, basename='Provincia')
 router.register('localidad', LocalidadViewSet, basename='Localidad')
-router.register('empresa', EmpresaViewSet, basename='Empresa')
+router.register('registro', RegistroVentaViewSet, basename='RegistroVenta')
+router.register('compra', CompraViewSet, basename='Compra')
+# Módulo productores
 router.register('productor', ProductorViewSet, basename='Productor')
-# Módulo maquinaria
-router.register('maquina', MaquinaViewSet, basename='Maquina')
-router.register('canilla', CanillaViewSet, basename='Canilla')
-# Módulo Tarjetas
-router.register('tarjetas', TarjetaViewSet, basename='Tarjeta')
-router.register('registro', RegistroVentasViewSet, basename='RegistroVentas')
+router.register('marca', MarcaViewSet, basename='Marca')
+router.register('tipo', TipoViewSet, basename='Tipo')
+router.register('estilo', EstiloViewSet, basename='Estilos')
 
 urlpatterns = [
     path('v1/', include(router.urls)),
-    path('v1/auth/', include(router_auth.urls)),
+    path('action/', include(urls.urlpatterns))
 ]

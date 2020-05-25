@@ -1,11 +1,12 @@
+from django.conf import settings
 from django.contrib.auth.models import User, Group
-from rest_framework.views import Response
+from django.contrib.auth.password_validation import validate_password
 from rest_framework import serializers
-from cervezas.models import Marca, ListaEstilos, Estilo, CervezaAsignada
-from clientes.models import Cliente
-from empresas.models import Provincia, Localidad, Empresa, Productor
-from maquinaria.models import Maquina, Canilla
-from tarjetas.models import Tarjeta, RegistroVentas
+from clientes.models import Cliente, Tarjeta
+from dispositivos.models import Pilon, Canilla, CanillaProducto
+from empresas.models import  Empresa, Producto, Precio
+from miscelaneos.models import Provincia, Localidad, RegistroVenta, Compra
+from productores.models import Productor, Marca, Tipo, Estilo
 
 
 # Módulo Autenticación
@@ -15,36 +16,10 @@ class UserSerializer(serializers.ModelSerializer):
             model = User
             fields = '__all__'
 
+
 class GroupSerializer(serializers.ModelSerializer):
     class Meta:
             model = Group
-            fields = '__all__'
-
-
-# Módulo cervezas
-
-class MarcaSerializer(serializers.ModelSerializer):
-    active = serializers.BooleanField(initial=True, read_only=True)
-
-    class Meta:
-            model = Marca
-            fields = '__all__'
-
-class ListaEstilosSerializer(serializers.ModelSerializer):
-    class Meta:
-            model = ListaEstilos
-            fields = '__all__'
-
-class EstiloSerializer(serializers.ModelSerializer):
-    active = serializers.BooleanField(initial=True, read_only=True)
-
-    class Meta:
-            model = Estilo
-            fields = '__all__'
-
-class CervezaAsignadaSerializer(serializers.ModelSerializer):
-    class Meta:
-            model = CervezaAsignada
             fields = '__all__'
 
 
@@ -58,6 +33,7 @@ class ClienteSerializer(serializers.ModelSerializer):
         style={'input_type': 'password', 'placeholder': 'requerido'}, required=True)
     email = serializers.CharField(
         label='Correo electrónico', required=False)
+
     first_name = serializers.CharField(
         label='Nombre/s', required=False)
     last_name = serializers.CharField(
@@ -73,20 +49,22 @@ class ClienteSerializer(serializers.ModelSerializer):
             model = Cliente
             fields = [
                 'id','username','password','cellphone','email','cuit','gender',
-                'first_name','last_name','id_localidad','avatar','avatar_th'
+                'first_name','last_name','id_localidad','date','avatar','avatar_th'
             ]
 
     def create(self, validated_data):
         if User.objects.filter(username=validated_data['username']).count():
             user = User.objects.get(username=validated_data['username'])
+            user.set_password(validated_data['password'])
         else:
             user = User.objects.create_user(
                 username= validated_data['username'],
                 password= validated_data['password'],
-                email= validated_data.get('email', ''),
-                first_name = validated_data.get('first_name', ''),
-                last_name= validated_data.get('last_name', ''),
             )
+        user.email= validated_data.get('email', '')
+        user.first_name = validated_data.get('first_name', '')
+        user.last_name= validated_data.get('last_name', '')
+        user.save()
         cliente = Cliente.objects.create(
             user= user,
             cellphone= validated_data.get('cellphone', ''),
@@ -101,8 +79,8 @@ class ClienteSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         user_instance = User.objects.get(username=instance.user.username)
         user_instance.username= validated_data.get('username', user_instance.username)
-        password = validated_data.get('password', user_instance.password)
-        user_instance.set_password(password)
+        if user_instance.password != validated_data['password']:
+            user_instance.set_password(validated_data['password'])
         user_instance.email= validated_data.get('email', user_instance.email)
         user_instance.first_name= validated_data.get('first_name', user_instance.first_name)
         user_instance.last_name= validated_data.get('last_name', user_instance.last_name)
@@ -124,42 +102,27 @@ class ClienteSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("Ese nombre de usuario no está disponible")
         return value
 
+    if not settings.DEBUG:
+        def validate_password(self, value):
+            validate_password(value)
+            return value
 
-# Módulo empresas
 
-class ProvinciaSerializer(serializers.ModelSerializer):
-    class Meta:
-            model = Provincia
-            fields = '__all__'
-
-class LocalidadSerializer(serializers.ModelSerializer):
-    class Meta:
-            model = Localidad
-            fields = '__all__'
-            depth=0
-
-class EmpresaSerializer(serializers.ModelSerializer):
+class TarjetaSerializer(serializers.ModelSerializer):
     active = serializers.BooleanField(initial=True, read_only=True)
 
     class Meta:
-            model = Empresa
-            fields = '__all__'
-
-class ProductorSerializer(serializers.ModelSerializer):
-    active = serializers.BooleanField(initial=True, read_only=True)
-
-    class Meta:
-            model = Productor
+            model = Tarjeta
             fields = '__all__'
 
 
-# Módulo maquinaria
+# Módulo dispositivos
 
-class MaquinaSerializer(serializers.ModelSerializer):
+class PilonSerializer(serializers.ModelSerializer):
     active = serializers.BooleanField(initial=True, read_only=True)
 
     class Meta:
-            model = Maquina
+            model = Pilon
             fields = '__all__'
 
 class CanillaSerializer(serializers.ModelSerializer):
@@ -169,17 +132,95 @@ class CanillaSerializer(serializers.ModelSerializer):
             model = Canilla
             fields = '__all__'
 
+class CanillaProductoSerializer(serializers.ModelSerializer):
+    active = serializers.BooleanField(initial=True, read_only=True)
+    
+    class Meta:
+            model = CanillaProducto
+            fields = '__all__'
 
-# Módulo Tarjetas
 
-class TarjetaSerializer(serializers.ModelSerializer):
+# Módulo empresas
+
+class EmpresaSerializer(serializers.ModelSerializer):
     active = serializers.BooleanField(initial=True, read_only=True)
 
     class Meta:
-            model = Tarjeta
+            model = Empresa
             fields = '__all__'
 
-class RegistroVentasSerializer(serializers.ModelSerializer):
+
+class ProductoSerializer(serializers.ModelSerializer):
+    active = serializers.BooleanField(initial=True, read_only=True)
+
     class Meta:
-            model = RegistroVentas
+            model = Producto
             fields = '__all__'
+
+
+class PrecioSerializer(serializers.ModelSerializer):
+    class Meta:
+            model = Precio
+            fields = '__all__'
+
+
+# Módulo Miscelaneos
+
+class ProvinciaSerializer(serializers.ModelSerializer):
+    class Meta:
+            model = Provincia
+            fields = '__all__'
+
+
+class LocalidadSerializer(serializers.ModelSerializer):
+    class Meta:
+            model = Localidad
+            fields = '__all__'
+            depth=0
+
+
+class RegistroVentaSerializer(serializers.ModelSerializer):
+    class Meta:
+            model = RegistroVenta
+            fields = '__all__'
+
+
+class CompraSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Compra
+        fields = '__all__'
+
+
+# Módulo productores
+
+class ProductorSerializer(serializers.ModelSerializer):
+    active = serializers.BooleanField(initial=True, read_only=True)
+
+    class Meta:
+            model = Productor
+            fields = '__all__'
+
+
+class MarcaSerializer(serializers.ModelSerializer):
+    active = serializers.BooleanField(initial=True, read_only=True)
+
+    class Meta:
+            model = Marca
+            fields = '__all__'
+
+
+class TipoSerializer(serializers.ModelSerializer):
+    class Meta:
+            model = Tipo
+            fields = '__all__'
+
+
+class EstiloSerializer(serializers.ModelSerializer):
+    active = serializers.BooleanField(initial=True, read_only=True)
+
+    class Meta:
+            model = Estilo
+            fields = '__all__'
+
+
+

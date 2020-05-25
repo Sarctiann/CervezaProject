@@ -1,0 +1,46 @@
+Esta direccion realiza su tarea enviandole un POST.
+
+<p>Requiere:</p>
+    <code>
+        <pre>
+        Header:
+
+            Authorization: "Token xxx"
+        
+        json_data:
+        
+            {
+                int: card_code,
+                int: beer_tap,
+                int: quantity
+            }
+        </pre>
+    </code>
+
+<p>Retorna:</p>
+    <code>
+        <pre>
+        StaticHTML:
+        
+            protocol_code, description
+        </pre>
+    </code>
+
+<h3>PROTOCOLO</h3>
+
+<ul>
+    <li>11: < Información de ayuda ></li>
+    <br>
+    <li>21: Aceptado < cantidad ></li>
+    <br>
+    <li>41: Rechazado Tarjeta Invalida</li>
+    <li>42: Rechazado Cliente Invalido</li>
+    <li>43: Rechazado Saldo Insuficiente</li>
+    <br>
+    <li>51: Error, No se proveyó el contenido requerido</li>
+    <li>52: Error, Cerveza insuficiente</li>
+    <li>53: Error, Opción de Cantidad Invalida</li>
+    <li>54: Error, Canilla Asociada Invalida</li>
+    <li>55: Error, Canilla Fuera de Servicio</li>
+    <li>56: Pilon, Fuera de servicio</li>
+</ul>
